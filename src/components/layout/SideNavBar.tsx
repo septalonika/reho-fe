@@ -1,5 +1,6 @@
 "use client";
 
+import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { 
@@ -9,14 +10,29 @@ import {
   Wallet, 
   Settings, 
   LogOut,
-  Church
+  Church,
+  ChevronDown
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
-const navigation = [
+interface NavItem {
+  name: string;
+  href?: string;
+  icon: any;
+  subItems?: { name: string; href: string }[];
+}
+
+const navigation: NavItem[] = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-  { name: "CMS", href: "/dashboard/cms", icon: FileText },
+  { 
+    name: "CMS", 
+    icon: FileText,
+    subItems: [
+      { name: "Banner & Pengumuman", href: "/dashboard/cms/banner" },
+      { name: "Berita & Renungan", href: "/dashboard/cms/news" }
+    ] 
+  },
   { name: "Jadwal", href: "/dashboard/jadwal", icon: Calendar },
   { name: "Keuangan", href: "/dashboard/keuangan", icon: Wallet },
   { name: "Settings", href: "/dashboard/settings", icon: Settings },
@@ -24,6 +40,21 @@ const navigation = [
 
 export function SideNavBar({ className }: { className?: string }) {
   const pathname = usePathname();
+  const [expandedMenus, setExpandedMenus] = React.useState<Record<string, boolean>>({});
+
+  // Auto-expand menu if current path is a sub-item
+  React.useEffect(() => {
+    const activeParent = navigation.find(item => 
+      item.subItems?.some(sub => sub.href === pathname)
+    );
+    if (activeParent) {
+      setExpandedMenus(prev => ({ ...prev, [activeParent.name]: true }));
+    }
+  }, [pathname]);
+
+  const toggleExpand = (name: string) => {
+    setExpandedMenus(prev => ({ ...prev, [name]: !prev[name] }));
+  };
 
   return (
     <div className={cn("flex h-full w-[260px] flex-col bg-primary text-primary-foreground", className)}>
@@ -38,11 +69,62 @@ export function SideNavBar({ className }: { className?: string }) {
 
       <nav className="flex-1 space-y-1 px-3 py-4">
         {navigation.map((item) => {
-          const isActive = pathname === item.href;
+          const isExpanded = !!expandedMenus[item.name];
+          const hasSubItems = !!item.subItems;
+          const isParentActive = hasSubItems && item.subItems?.some(sub => sub.href === pathname);
+          const isActive = (item.href && pathname === item.href) || isParentActive;
+
+          if (hasSubItems) {
+            return (
+              <div key={item.name} className="space-y-1">
+                <button
+                  onClick={() => toggleExpand(item.name)}
+                  className={cn(
+                    "w-full group flex items-center justify-between gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors",
+                    isActive 
+                      ? "text-white bg-white/5" 
+                      : "text-primary-foreground/70 hover:bg-white/10 hover:text-white"
+                  )}
+                >
+                  <div className="flex items-center gap-3">
+                    <item.icon className={cn("h-5 w-5", isActive ? "text-secondary" : "text-primary-foreground/70 group-hover:text-white")} />
+                    {item.name}
+                  </div>
+                  <ChevronDown className={cn(
+                    "h-4 w-4 transition-transform duration-200",
+                    isExpanded ? "rotate-180" : ""
+                  )} />
+                </button>
+                
+                {isExpanded && (
+                  <div className="ml-8 space-y-1 border-l border-white/10 pl-2">
+                    {item.subItems?.map((sub) => {
+                      const isSubActive = pathname === sub.href;
+                      return (
+                        <Link
+                          key={sub.name}
+                          href={sub.href}
+                          className={cn(
+                            "block rounded-md px-3 py-2 text-xs font-medium transition-colors",
+                            isSubActive 
+                              ? "bg-secondary text-primary" 
+                              : "text-primary-foreground/60 hover:bg-white/5 hover:text-white"
+                          )}
+                        >
+                          {sub.name}
+                        </Link>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            );
+          }
+
           return (
             <Link
               key={item.name}
-              href={item.href}
+              href={item.href || "#"}
               className={cn(
                 "group flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors",
                 isActive 
