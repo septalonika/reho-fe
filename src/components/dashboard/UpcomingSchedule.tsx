@@ -1,3 +1,5 @@
+"use client";
+
 import {
   Table,
   TableBody,
@@ -8,6 +10,8 @@ import {
 } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
+import { motion } from "framer-motion";
 
 const schedules = [
   {
@@ -16,7 +20,7 @@ const schedules = [
     tanggal: "11 Mei 2026",
     waktu: "09:00 WIB",
     status: "Confirmed",
-    color: "bg-emerald-100 text-emerald-700 hover:bg-emerald-100"
+    color: "bg-emerald-500/10 text-emerald-600 border-emerald-500/20"
   },
   {
     id: 2,
@@ -24,7 +28,7 @@ const schedules = [
     tanggal: "13 Mei 2026",
     waktu: "18:00 WIB",
     status: "Confirmed",
-    color: "bg-emerald-100 text-emerald-700 hover:bg-emerald-100"
+    color: "bg-emerald-500/10 text-emerald-600 border-emerald-500/20"
   },
   {
     id: 3,
@@ -32,7 +36,7 @@ const schedules = [
     tanggal: "15 Mei 2026",
     waktu: "21:00 WIB",
     status: "Pending",
-    color: "bg-amber-100 text-amber-700 hover:bg-amber-100"
+    color: "bg-amber-500/10 text-amber-600 border-amber-500/20"
   },
   {
     id: 4,
@@ -40,7 +44,7 @@ const schedules = [
     tanggal: "18 Mei 2026",
     waktu: "09:00 WIB",
     status: "Confirmed",
-    color: "bg-emerald-100 text-emerald-700 hover:bg-emerald-100"
+    color: "bg-emerald-500/10 text-emerald-600 border-emerald-500/20"
   },
   {
     id: 5,
@@ -48,45 +52,49 @@ const schedules = [
     tanggal: "20 Mei 2026",
     waktu: "17:00 WIB",
     status: "Draft",
-    color: "bg-slate-100 text-slate-700 hover:bg-slate-100"
+    color: "bg-slate-500/10 text-slate-600 border-slate-500/20"
   }
 ];
 
 export function UpcomingSchedule() {
   return (
-    <Card className="col-span-1 lg:col-span-8 border-none shadow-sm">
-      <CardHeader>
-        <CardTitle className="text-lg font-heading font-semibold">Jadwal Terdekat</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <Table>
-          <TableHeader>
-            <TableRow className="hover:bg-transparent border-muted">
-              <TableHead className="font-semibold text-primary">Kegiatan</TableHead>
-              <TableHead className="font-semibold text-primary">Tanggal</TableHead>
-              <TableHead className="font-semibold text-primary">Waktu</TableHead>
-              <TableHead className="font-semibold text-primary text-right">Status</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {schedules.map((item) => (
-              <TableRow key={item.id} className="border-muted/50">
-                <TableCell className="font-medium">{item.kegiatan}</TableCell>
-                <TableCell>{item.tanggal}</TableCell>
-                <TableCell>{item.waktu}</TableCell>
-                <TableCell className="text-right">
-                  <Badge variant="secondary" className={cn("rounded-full font-normal", item.color)}>
-                    {item.status}
-                  </Badge>
-                </TableCell>
+    <motion.div
+      className="col-span-1 lg:col-span-8"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, delay: 0.4 }}
+    >
+      <Card className="border-none shadow-sm overflow-hidden">
+        <CardHeader>
+          <CardTitle className="text-lg font-heading font-semibold">Jadwal Terdekat</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Table>
+            <TableHeader>
+              <TableRow className="hover:bg-transparent border-muted">
+                <TableHead className="font-semibold text-primary">Kegiatan</TableHead>
+                <TableHead className="font-semibold text-primary text-center">Tanggal</TableHead>
+                <TableHead className="font-semibold text-primary text-center">Waktu</TableHead>
+                <TableHead className="font-semibold text-primary text-right">Status</TableHead>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </CardContent>
-    </Card>
+            </TableHeader>
+            <TableBody>
+              {schedules.map((item) => (
+                <TableRow key={item.id} className="border-muted/50 transition-colors hover:bg-muted/30">
+                  <TableCell className="font-medium">{item.kegiatan}</TableCell>
+                  <TableCell className="text-center">{item.tanggal}</TableCell>
+                  <TableCell className="text-center">{item.waktu}</TableCell>
+                  <TableCell className="text-right">
+                    <Badge variant="outline" className={cn("rounded-full font-medium px-3", item.color)}>
+                      {item.status}
+                    </Badge>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
+    </motion.div>
   );
 }
-
-// Helper function since I'm using cn here
-import { cn } from "@/lib/utils";
