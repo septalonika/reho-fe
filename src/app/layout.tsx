@@ -18,6 +18,7 @@ export const metadata: Metadata = {
 };
 
 import { NuqsAdapter } from "nuqs/adapters/next/app";
+import { QueryProvider } from "@/components/providers/QueryProvider";
 
 export default function RootLayout({
   children,
@@ -30,7 +31,9 @@ export default function RootLayout({
       className={`${inter.variable} ${outfit.variable} h-full antialiased`}
     >
       <body className="font-inter min-h-full flex flex-col">
-        <NuqsAdapter>{children}</NuqsAdapter>
+        <QueryProvider>
+          <NuqsAdapter>{children}</NuqsAdapter>
+        </QueryProvider>
       </body>
     </html>
   );
