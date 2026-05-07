@@ -17,6 +17,8 @@ export const metadata: Metadata = {
   description: "Church Management System for GKII Rehobot",
 };
 
+import { NuqsAdapter } from "nuqs/adapters/next/app";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -27,7 +29,9 @@ export default function RootLayout({
       lang="id"
       className={`${inter.variable} ${outfit.variable} h-full antialiased`}
     >
-      <body className="font-inter min-h-full flex flex-col">{children}</body>
+      <body className="font-inter min-h-full flex flex-col">
+        <NuqsAdapter>{children}</NuqsAdapter>
+      </body>
     </html>
   );
 }

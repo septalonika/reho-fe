@@ -12,6 +12,7 @@ import {
   getSortedRowModel,
   ColumnFiltersState,
   getFilteredRowModel,
+  PaginationState,
 } from "@tanstack/react-table";
 import { 
   Pencil, 
@@ -22,6 +23,7 @@ import {
   ChevronLeft,
   ChevronRight
 } from "lucide-react";
+import { useQueryState, parseAsString, parseAsInteger, parseAsJson } from "nuqs";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -83,8 +85,14 @@ interface BannerTableProps {
 }
 
 export function BannerTable({ onEdit, onDelete, onAdd }: BannerTableProps) {
-  const [sorting, setSorting] = React.useState<SortingState>([]);
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
+  // nuqs URL State
+  const [search, setSearch] = useQueryState("search", parseAsString.withDefault("").withOptions({ shallow: false }));
+  const [status, setStatus] = useQueryState("status", parseAsString.withDefault("all").withOptions({ shallow: false }));
+  const [page, setPage] = useQueryState("page", parseAsInteger.withDefault(1).withOptions({ shallow: false }));
+  const [sort, setSort] = useQueryState<SortingState>("sort", 
+    parseAsJson<SortingState>().withDefault([]).withOptions({ shallow: false })
+  );
+
   const [rowSelection, setRowSelection] = React.useState({});
 
   const columns: ColumnDef<Banner>[] = [
@@ -118,6 +126,7 @@ export function BannerTable({ onEdit, onDelete, onAdd }: BannerTableProps) {
             src={row.getValue("imageUrl")}
             alt={row.getValue("title")}
             fill
+            sizes="96px"
             className="object-cover"
           />
         </div>
@@ -127,9 +136,14 @@ export function BannerTable({ onEdit, onDelete, onAdd }: BannerTableProps) {
       accessorKey: "title",
       header: ({ column }) => {
         return (
-          <div className="flex items-center gap-1">
+          <Button
+            variant="ghost"
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+            className="-ml-4 h-8 text-slate-500 font-semibold text-xs uppercase tracking-wider hover:bg-transparent"
+          >
             Judul
-          </div>
+            <ArrowUpDown className="ml-2 h-3 w-3" />
+          </Button>
         );
       },
       cell: ({ row }) => <div className="font-medium text-slate-900">{row.getValue("title")}</div>,
@@ -138,8 +152,8 @@ export function BannerTable({ onEdit, onDelete, onAdd }: BannerTableProps) {
       accessorKey: "status",
       header: "Status",
       cell: ({ row }) => {
-        const status = row.getValue("status") as string;
-        const isActive = status === "Active";
+        const statusVal = row.getValue("status") as string;
+        const isActive = statusVal === "Active";
         return (
           <Badge
             className={cn(
@@ -156,7 +170,18 @@ export function BannerTable({ onEdit, onDelete, onAdd }: BannerTableProps) {
     },
     {
       accessorKey: "order",
-      header: "No Urut",
+      header: ({ column }) => {
+        return (
+          <Button
+            variant="ghost"
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+            className="-ml-4 h-8 text-slate-500 font-semibold text-xs uppercase tracking-wider hover:bg-transparent"
+          >
+            No Urut
+            <ArrowUpDown className="ml-2 h-3 w-3" />
+          </Button>
+        );
+      },
       cell: ({ row }) => <div className="text-slate-500">{row.getValue("order")}</div>,
     },
     {
@@ -187,21 +212,42 @@ export function BannerTable({ onEdit, onDelete, onAdd }: BannerTableProps) {
     },
   ];
 
+  // Derived filters for the table
+  const columnFilters = React.useMemo(() => {
+    const filters: ColumnFiltersState = [];
+    if (search) filters.push({ id: "title", value: search });
+    if (status && status !== "all") filters.push({ id: "status", value: status === "Active" ? "Active" : "Inactive" });
+    return filters;
+  }, [search, status]);
+
+  const pagination: PaginationState = React.useMemo(() => ({
+    pageIndex: page - 1,
+    pageSize: 10,
+  }), [page]);
+
   const table = useReactTable({
     data: mockData,
     columns,
-    onSortingChange: setSorting,
-    onColumnFiltersChange: setColumnFilters,
+    onSortingChange: (updater) => {
+      const next = typeof updater === "function" ? updater(sort) : updater;
+      setSort(next);
+    },
+    onPaginationChange: (updater) => {
+      const next = typeof updater === "function" ? updater(pagination) : updater;
+      setPage(next.pageIndex + 1);
+    },
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     onRowSelectionChange: setRowSelection,
     state: {
-      sorting,
+      sorting: sort,
       columnFilters,
+      pagination,
       rowSelection,
     },
+    manualPagination: false, // Set to true if fetching from API
   });
 
   return (
@@ -213,20 +259,16 @@ export function BannerTable({ onEdit, onDelete, onAdd }: BannerTableProps) {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
             <Input
               placeholder="Cari banner..."
-              value={(table.getColumn("title")?.getFilterValue() as string) ?? ""}
-              onChange={(event) =>
-                table.getColumn("title")?.setFilterValue(event.target.value)
-              }
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
               className="w-full pl-10 pr-4 h-10 bg-white border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
             />
           </div>
           <div className="flex items-center gap-3 w-full sm:w-auto">
             <span className="text-sm font-medium text-slate-500 hidden sm:inline">Status:</span>
             <Select 
-              onValueChange={(value) => 
-                table.getColumn("status")?.setFilterValue(value === "all" ? "" : value)
-              }
-              defaultValue="all"
+              value={status}
+              onValueChange={setStatus}
             >
               <SelectTrigger className="w-full sm:w-40 h-10 bg-white border-slate-200 rounded-lg">
                 <SelectValue placeholder="Semua Status" />
@@ -302,24 +344,22 @@ export function BannerTable({ onEdit, onDelete, onAdd }: BannerTableProps) {
             >
               <ChevronLeft className="h-4 w-4" />
             </Button>
-            <Button
-              className="h-8 min-w-[32px] bg-[#1A365D] hover:bg-[#1A365D]/90 text-white border-none text-xs"
-            >
-              1
-            </Button>
-            <Button
-              variant="outline"
-              className="h-8 min-w-[32px] border-slate-200 text-slate-600 hover:border-blue-500 hover:text-blue-600 transition-colors text-xs"
-            >
-              2
-            </Button>
-            <Button
-              variant="outline"
-              className="h-8 min-w-[32px] border-slate-200 text-slate-600 hover:border-blue-500 hover:text-blue-600 transition-colors text-xs"
-            >
-              3
-            </Button>
-            <span className="px-1 text-slate-400">...</span>
+            
+            {Array.from({ length: table.getPageCount() }, (_, i) => i + 1).map((p) => (
+              <Button
+                key={p}
+                onClick={() => setPage(p)}
+                className={cn(
+                  "h-8 min-w-[32px] text-xs border-none",
+                  page === p 
+                    ? "bg-[#1A365D] hover:bg-[#1A365D]/90 text-white" 
+                    : "bg-transparent text-slate-600 hover:bg-slate-100"
+                )}
+              >
+                {p}
+              </Button>
+            ))}
+
             <Button
               variant="outline"
               size="icon"

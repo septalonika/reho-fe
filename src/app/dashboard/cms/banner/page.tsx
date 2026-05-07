@@ -1,10 +1,12 @@
 "use client";
 
 import * as React from "react";
+import { Suspense } from "react";
 import { BannerTable, Banner } from "@/components/cms/banner/BannerTable";
 import { BannerForm } from "@/components/cms/banner/BannerForm";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Dialog,
   DialogContent,
@@ -23,10 +25,39 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 
-export default function BannerPage() {
+function BannerSkeleton() {
+  return (
+    <div className="space-y-4">
+      <div className="flex justify-between">
+        <Skeleton className="h-10 w-72" />
+        <Skeleton className="h-10 w-40" />
+      </div>
+      <div className="rounded-xl border border-slate-200 overflow-hidden">
+        <div className="h-12 bg-slate-50 border-b border-slate-100" />
+        {[...Array(5)].map((_, i) => (
+          <div key={i} className="h-20 border-b border-slate-50 flex items-center px-4 gap-4">
+            <Skeleton className="h-4 w-4" />
+            <Skeleton className="h-14 w-24" />
+            <Skeleton className="h-4 flex-1" />
+            <Skeleton className="h-6 w-16" />
+            <Skeleton className="h-8 w-8 ml-auto" />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function BannerContent() {
   const [isFormOpen, setIsFormOpen] = React.useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = React.useState(false);
   const [selectedBanner, setSelectedBanner] = React.useState<Banner | null>(null);
+  const [isLoading, setIsLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    const timer = setTimeout(() => setIsLoading(false), 1000);
+    return () => clearTimeout(timer);
+  }, []);
 
   const handleAdd = () => {
     setSelectedBanner(null);
@@ -73,11 +104,15 @@ export default function BannerPage() {
         </Button>
       </div>
 
-      <BannerTable 
-        onAdd={handleAdd} 
-        onEdit={handleEdit} 
-        onDelete={handleDelete} 
-      />
+      {isLoading ? (
+        <BannerSkeleton />
+      ) : (
+        <BannerTable 
+          onAdd={handleAdd} 
+          onEdit={handleEdit} 
+          onDelete={handleDelete} 
+        />
+      )}
 
       {/* Add/Edit Modal */}
       <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
@@ -120,5 +155,13 @@ export default function BannerPage() {
         </AlertDialogContent>
       </AlertDialog>
     </div>
+  );
+}
+
+export default function BannerPage() {
+  return (
+    <Suspense fallback={<BannerSkeleton />}>
+      <BannerContent />
+    </Suspense>
   );
 }
