@@ -33,7 +33,7 @@ const navigation: NavItem[] = [
       { name: "Berita & Renungan", href: "/dashboard/cms/news" }
     ] 
   },
-  { name: "Jadwal", href: "/dashboard/jadwal", icon: Calendar },
+  { name: "Jadwal & Pelayanan", href: "/schedule/roster", icon: Calendar },
   { name: "Keuangan", href: "/dashboard/keuangan", icon: Wallet },
   { name: "Settings", href: "/dashboard/settings", icon: Settings },
 ];
