@@ -1,4 +1,6 @@
-export const metadata = { title: "Masuk" };
+import { LoginForm } from "@/components/admin/login-form";
+
+export const metadata = { title: "Masuk — GKII Rehobot" };
 
 export default function LoginPage() {
   return (
@@ -31,8 +33,7 @@ export default function LoginPage() {
           <p className="mt-2 text-sm text-muted-foreground">
             Gunakan akun yang diberikan oleh administrator.
           </p>
-          {/* Form implemented in Konten module phase */}
-          <div className="mt-8 h-48 rounded-md border border-dashed border-border" />
+          <LoginForm />
         </div>
       </div>
     </div>

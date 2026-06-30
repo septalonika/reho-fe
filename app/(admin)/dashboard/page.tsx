@@ -1,4 +1,6 @@
-export const metadata = { title: "Dashboard" };
+import { DashboardStats } from "@/components/admin/dashboard-stats";
+
+export const metadata = { title: "Dashboard — GKII Rehobot" };
 
 export default function DashboardPage() {
   return (
@@ -17,22 +19,7 @@ export default function DashboardPage() {
         aria-label="reminder-banner"
       />
 
-      {/* Stat row — divide-x, not 3 equal cards (per taste-skill) */}
-      <div className="grid grid-cols-2 divide-x divide-border rounded-lg border border-border md:grid-cols-4">
-        {[
-          { label: "Ibadah Mendatang", value: "—" },
-          { label: "Slot Belum Diisi", value: "—" },
-          { label: "Saldo Bulan Ini", value: "—" },
-          { label: "Draft Konten", value: "—" },
-        ].map((stat) => (
-          <div key={stat.label} className="p-6">
-            <p className="text-xs font-medium uppercase tracking-widest text-muted-foreground">
-              {stat.label}
-            </p>
-            <p className="mt-2 font-mono text-3xl font-bold">{stat.value}</p>
-          </div>
-        ))}
-      </div>
+      <DashboardStats />
 
       {/* Module shortcuts */}
       <div className="mt-8 grid grid-cols-1 gap-4 md:grid-cols-3">

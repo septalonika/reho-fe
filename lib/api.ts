@@ -1,4 +1,4 @@
-import { createClient } from "./supabase/client";
+import { getToken } from "./auth";
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
 
@@ -7,14 +7,10 @@ type RequestOptions = Omit<RequestInit, "body"> & {
   params?: Record<string, string | number | boolean | undefined>;
 };
 
-async function getAuthHeader(): Promise<Record<string, string>> {
-  const supabase = createClient();
-  const {
-    data: { session },
-  } = await supabase.auth.getSession();
-
-  if (!session?.access_token) return {};
-  return { Authorization: `Bearer ${session.access_token}` };
+function getAuthHeader(): Record<string, string> {
+  const token = getToken();
+  if (!token) return {};
+  return { Authorization: `Bearer ${token}` };
 }
 
 function buildUrl(path: string, params?: RequestOptions["params"]): string {
@@ -30,13 +26,11 @@ function buildUrl(path: string, params?: RequestOptions["params"]): string {
 async function request<T>(path: string, options: RequestOptions = {}): Promise<T> {
   const { body, params, headers, ...rest } = options;
 
-  const authHeader = await getAuthHeader();
-
   const res = await fetch(buildUrl(path, params), {
     ...rest,
     headers: {
       "Content-Type": "application/json",
-      ...authHeader,
+      ...getAuthHeader(),
       ...headers,
     },
     body: body !== undefined ? JSON.stringify(body) : undefined,
@@ -47,7 +41,6 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
     throw new ApiError(res.status, payload.error ?? res.statusText);
   }
 
-  // 204 No Content
   if (res.status === 204) return undefined as T;
 
   return res.json() as Promise<T>;
