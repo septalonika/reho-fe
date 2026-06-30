@@ -10,7 +10,6 @@ import {
   Cake,
   CalendarBlank,
   UsersThree,
-  CurrencyDollar,
   ArrowDownLeft,
   ArrowUpRight,
   FileText,
@@ -37,32 +36,16 @@ const navGroups = [
   {
     label: "Jadwal",
     items: [
-      {
-        href: "/dashboard/jadwal/ibadah",
-        label: "Ibadah",
-        icon: CalendarBlank,
-      },
+      { href: "/dashboard/jadwal/ibadah", label: "Ibadah", icon: CalendarBlank },
       { href: "/dashboard/jadwal/roster", label: "Roster", icon: UsersThree },
     ],
   },
   {
     label: "Keuangan",
     items: [
-      {
-        href: "/dashboard/keuangan/pemasukan",
-        label: "Pemasukan",
-        icon: ArrowDownLeft,
-      },
-      {
-        href: "/dashboard/keuangan/pengeluaran",
-        label: "Pengeluaran",
-        icon: ArrowUpRight,
-      },
-      {
-        href: "/dashboard/keuangan/laporan",
-        label: "Laporan",
-        icon: FileText,
-      },
+      { href: "/dashboard/keuangan/pemasukan", label: "Pemasukan", icon: ArrowDownLeft },
+      { href: "/dashboard/keuangan/pengeluaran", label: "Pengeluaran", icon: ArrowUpRight },
+      { href: "/dashboard/keuangan/laporan", label: "Laporan", icon: FileText },
     ],
   },
 ];
@@ -74,14 +57,14 @@ export function AdminSidebar() {
   return (
     <aside
       className={cn(
-        "relative flex flex-col border-r border-sidebar-border bg-sidebar transition-all duration-200",
-        collapsed ? "w-[60px]" : "w-[220px]"
+        "relative flex flex-col border-r border-[#EAEAEA] bg-[#FAFAF9] transition-all duration-200",
+        collapsed ? "w-[64px]" : "w-[248px]"
       )}
     >
       {/* Logo */}
-      <div className="flex h-14 items-center border-b border-sidebar-border px-4">
+      <div className="flex h-16 items-center border-b border-[#EAEAEA] px-5">
         {!collapsed && (
-          <span className="text-xs font-bold uppercase tracking-widest text-sidebar-foreground/80">
+          <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-zinc-900">
             Rehobot Admin
           </span>
         )}
@@ -90,9 +73,9 @@ export function AdminSidebar() {
       {/* Nav */}
       <nav className="flex-1 overflow-y-auto py-4">
         {navGroups.map((group) => (
-          <div key={group.label ?? "root"} className="mb-4">
+          <div key={group.label ?? "root"} className="mb-5">
             {group.label && !collapsed && (
-              <p className="mb-1 px-4 text-[10px] font-semibold uppercase tracking-widest text-sidebar-foreground/40">
+              <p className="mb-1.5 px-5 text-[10px] font-semibold uppercase tracking-[0.12em] text-zinc-400">
                 {group.label}
               </p>
             )}
@@ -100,21 +83,24 @@ export function AdminSidebar() {
               const Icon = item.icon;
               const active =
                 pathname === item.href ||
-                (item.href !== "/dashboard" &&
-                  pathname.startsWith(item.href));
+                (item.href !== "/dashboard" && pathname.startsWith(item.href));
               return (
                 <Link
                   key={item.href}
                   href={item.href}
                   title={collapsed ? item.label : undefined}
                   className={cn(
-                    "flex items-center gap-3 px-4 py-2 text-sm font-medium transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+                    "flex items-center gap-3 px-5 py-2.5 text-sm font-medium transition-colors",
                     active
-                      ? "bg-sidebar-accent text-sidebar-primary"
-                      : "text-sidebar-foreground/70"
+                      ? "bg-zinc-100 text-zinc-900"
+                      : "text-zinc-500 hover:bg-zinc-100 hover:text-zinc-800"
                   )}
                 >
-                  <Icon size={18} weight={active ? "fill" : "regular"} />
+                  <Icon
+                    size={20}
+                    weight={active ? "fill" : "regular"}
+                    className={active ? "text-zinc-900" : "text-zinc-400"}
+                  />
                   {!collapsed && <span>{item.label}</span>}
                 </Link>
               );
@@ -126,14 +112,10 @@ export function AdminSidebar() {
       {/* Collapse toggle */}
       <button
         onClick={toggle}
-        className="flex h-12 items-center justify-center border-t border-sidebar-border text-sidebar-foreground/50 transition-colors hover:bg-sidebar-accent hover:text-sidebar-foreground"
+        className="flex h-12 items-center justify-center border-t border-[#EAEAEA] text-zinc-400 transition-colors hover:bg-zinc-100 hover:text-zinc-700"
         aria-label={collapsed ? "Buka sidebar" : "Kecilkan sidebar"}
       >
-        {collapsed ? (
-          <ArrowLineRight size={16} />
-        ) : (
-          <ArrowLineLeft size={16} />
-        )}
+        {collapsed ? <ArrowLineRight size={16} /> : <ArrowLineLeft size={16} />}
       </button>
     </aside>
   );

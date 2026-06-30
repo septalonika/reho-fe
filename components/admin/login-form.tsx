@@ -21,6 +21,8 @@ type FormValues = z.infer<typeof schema>;
 
 interface LoginResponse {
   access_token: string;
+  refresh_token: string;
+  expires_at: number;
   user: { email: string };
 }
 
@@ -39,7 +41,7 @@ export function LoginForm() {
     setServerError(null);
     try {
       const result = await api.post<LoginResponse>("/auth/login", values);
-      setAuth(result.access_token, result.user.email ?? "");
+      setAuth(result.access_token, result.user.email ?? "", result.refresh_token, result.expires_at);
       router.push("/dashboard");
       router.refresh();
     } catch (err) {

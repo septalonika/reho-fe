@@ -2,9 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
-import { Plus, SignOut } from "@phosphor-icons/react";
+import { SignOut } from "@phosphor-icons/react";
 import { clearAuth, getEmail } from "@/lib/auth";
-import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -48,28 +47,13 @@ export function AdminTopbar() {
   const initial = email?.[0]?.toUpperCase() ?? "A";
 
   return (
-    <header className="flex h-14 items-center justify-between border-b border-border bg-background px-6 md:px-8">
-      <p className="text-sm font-medium text-muted-foreground">{breadcrumb}</p>
+    <header className="flex h-16 items-center justify-between border-b border-[#EAEAEA] bg-[#FAFAF9] px-8 md:px-10 xl:px-12">
+      <p className="text-sm font-medium text-zinc-500">{breadcrumb}</p>
 
       <div className="flex items-center gap-3">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button size="sm" className="gap-1.5">
-              <Plus size={14} weight="bold" />
-              Tambah
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem>Renungan baru</DropdownMenuItem>
-            <DropdownMenuItem>Banner baru</DropdownMenuItem>
-            <DropdownMenuItem>Jadwal ibadah</DropdownMenuItem>
-            <DropdownMenuItem>Catat pemasukan</DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <button className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground active:scale-[0.98]">
+            <button className="flex h-8 w-8 items-center justify-center rounded-[4px] bg-zinc-900 text-xs font-bold text-white transition-colors hover:bg-zinc-700 active:scale-[0.98]">
               {initial}
             </button>
           </DropdownMenuTrigger>
@@ -77,7 +61,7 @@ export function AdminTopbar() {
             {email && (
               <>
                 <div className="px-2 py-1.5">
-                  <p className="truncate text-xs text-muted-foreground">{email}</p>
+                  <p className="truncate text-xs text-zinc-500">{email}</p>
                 </div>
                 <DropdownMenuSeparator />
               </>
